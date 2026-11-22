@@ -32,11 +32,24 @@ jobs:
           fetch-depth: 0
       - name: The version
         run: echo "ODIN_IOS_VERSION=$(tr -d '[:space:]' < version.txt).$(git rev-list --count HEAD)" >> "$GITHUB_ENV"
+      # The branch of odin-android of the same name as this one when there is
+      # one (a patch tried for iOS before it is merged), else main
+      - name: Which odin-android
+        env:
+          WANT: ${{ inputs.android_ref || vars.ODIN_ANDROID_REF }}
+        run: |
+          ref="$WANT"
+          if [ -z "$ref" ] && [ "$GITHUB_REF_NAME" != main ] &&
+             git ls-remote --exit-code --heads https://github.com/Laurent-67370/odin-android "$GITHUB_REF_NAME" >/dev/null; then
+            ref="$GITHUB_REF_NAME"
+          fi
+          echo "ANDROID_REF=${ref:-main}" >> "$GITHUB_ENV"
+          echo "odin-android: ${ref:-main}"
       - name: odin-android (the patch of Odin, shared with the APK)
         uses: actions/checkout@v4
         with:
           repository: Laurent-67370/odin-android
-          ref: ${{ inputs.android_ref || vars.ODIN_ANDROID_REF || 'main' }}
+          ref: ${{ env.ANDROID_REF }}
           path: odin-android
       - name: Tools
         run: brew install glslang ninja gawk
