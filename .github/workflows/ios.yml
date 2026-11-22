@@ -90,6 +90,9 @@ jobs:
           cp -R build/share/odin/. "$app/"
           mkdir -p "$app/Frameworks"
           cp -R "$(find . -type d -name 'MoltenVK.framework' -path '*dynamic*ios-arm64/*' | grep -v simulator | head -1)" "$app/Frameworks/"
+          # Where Odin gives it to SDL (SDL looks for libvulkan.dylib alone):
+          # without it, no Vulkan, a black screen
+          lipo -info "$app/Frameworks/MoltenVK.framework/MoltenVK" | grep -q arm64
           mkdir Payload && cp -R "$app" Payload/ && zip -qr odin.ipa Payload
           ls -l odin.ipa
       - uses: actions/upload-artifact@v4
