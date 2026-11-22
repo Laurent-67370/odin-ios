@@ -23,7 +23,9 @@ concurrency:
 
 jobs:
   ipa:
-    runs-on: macos-15
+    # macos-15-intel: the arm64 Macs of GitHub are often saturated (a job
+    # waited hours in the queue); the .ipa is cross-compiled either way
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
         with:
