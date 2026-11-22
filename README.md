@@ -4,17 +4,31 @@ Version iPhone d'[Odin](https://github.com/Tovarichtch/Odin), l'émulateur SEGA
 Hikaru et Gaelco ATV Track de Réda Chérif-Touil (GPL 3), tirée du portage
 Android [odin-android](https://github.com/Laurent-67370/odin-android).
 
-**État : expérimental.** L'app s'installe et s'ouvre (menus, liste des jeux,
-manette tactile) ; **les jeux ne démarrent pas encore** : il leur faut le JIT,
-qui fait l'objet de l'étape 2. Des **bêta-testeurs** sont recherchés :
+**État : expérimental.** L'app est construite pour s'ouvrir (menus, liste des
+jeux, manette tactile) ; **les jeux ne démarrent pas encore** : il leur faut le
+JIT, qui fait l'objet de l'étape 2. Personne ne l'a encore essayée sur un
+iPhone : des **bêta-testeurs** sont recherchés, l'appel est lancé sur
 [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56).
+
+> **In English, for beta testers:** an experimental, unsigned iPhone build of
+> Odin (iOS 16.3+, arm64). Download
+> [odin.ipa](https://github.com/Laurent-67370/odin-ios/releases/download/odin-ios/odin.ipa),
+> sideload it with SideStore or AltStore, then put `hikaru.zip`, `mie.zip` and
+> your games in Files → On My iPhone → Odin → `roms/`. For now only the menus
+> and the game list are expected to work: the games need JIT (step 2, with
+> StikDebug). Please report your iPhone model, iOS version, screenshots and
+> `odin.log` (same folder) on
+> [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56) or in
+> [this repository's issues](https://github.com/Laurent-67370/odin-ios/issues).
 
 ## Télécharger
 
 [odin.ipa](https://github.com/Laurent-67370/odin-ios/releases/download/odin-ios/odin.ipa)
 (publication [`odin-ios`](https://github.com/Laurent-67370/odin-ios/releases/tag/odin-ios),
 reconstruite à chaque modification). L'`.ipa` n'est pas signé : on l'installe
-soi-même.
+soi-même. Le lien fonctionne dès que la première construction est publiée
+(onglet **Releases** du dépôt) ; tant qu'elle ne l'est pas, il mène à une page
+introuvable.
 
 ## Installer
 
@@ -32,7 +46,7 @@ soi-même.
 
 | Étape | Contenu | État |
 |---|---|---|
-| 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, dossiers dans Fichiers | **construite**, à essayer |
+| 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, dossiers dans Fichiers | **construite**, à essayer par les bêta-testeurs |
 | 2 | les jeux : le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64, il n'a pas d'interpréteur), activé par un débogueur (**StikDebug**) ; la mémoire du code à la façon des émulateurs iOS | à faire, avec les testeurs |
 | 3 | les jeux maison, l'import de jeux depuis l'app | plus tard |
 
