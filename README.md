@@ -14,11 +14,11 @@ iPhone : des **bêta-testeurs** sont recherchés, l'appel est lancé sur
 > **In English, for beta testers:** an experimental, unsigned iPhone build of
 > Odin (iOS 16.3+, arm64). Download
 > [odin.ipa](https://github.com/Laurent-67370/odin-ios/releases/download/odin-ios/odin.ipa),
-> sideload it with SideStore or AltStore, then put `hikaru.zip`, `mie.zip` and
-> your games in Files → On My iPhone → Odin → `roms/`. Games run without JIT,
+> sideload it with SideStore or AltStore, then in Odin use MENU → File → Add
+> games... to pick `hikaru.zip`, `mie.zip` and your games from Files. Games run without JIT,
 > about half as fast; with JIT enabled by StikDebug, at full speed (to be
 > tried). `odin.log` says `JIT: on` or `JIT: off`. Please report your iPhone model, iOS version, screenshots and
-> `odin.log` (same folder) on
+> `odin.log` (Files → On My iPhone → Odin) on
 > [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56) or in
 > [this repository's issues](https://github.com/Laurent-67370/odin-ios/issues).
 
@@ -38,9 +38,12 @@ introuvable.
 2. Installer `odin.ipa` avec **SideStore** ou **AltStore** (gratuits, avec un
    identifiant Apple ; l'app est à renouveler tous les 7 jours avec un compte
    gratuit).
-3. Ouvrir l'app **Fichiers** → **Sur mon iPhone** → **Odin** : y mettre, dans
-   le dossier `roms/`, `hikaru.zip`, `mie.zip` et les jeux (archives MAME
-   `.zip` / `.7z`). `odin.ini` et `odin.log` sont écrits à côté.
+3. Dans Odin, **MENU → File → Add games...** : choisir dans Fichiers (ou
+   iCloud) `hikaru.zip`, `mie.zip` et les jeux (archives MAME `.zip` / `.7z`),
+   plusieurs à la fois ; Odin les copie dans son dossier `roms/` et dit pour
+   chacun s'il est prêt. On peut aussi les déposer soi-même : **Fichiers** →
+   **Sur mon iPhone** → **Odin** → `roms/` (avec LiveContainer, dans le dossier
+   de LiveContainer). `odin.ini` et `odin.log` sont écrits à côté.
 4. Lancer Odin : la liste des jeux s'affiche, en portrait comme en paysage.
 
 ## Les étapes
@@ -49,7 +52,8 @@ introuvable.
 |---|---|---|
 | 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, dossiers dans Fichiers | **construite**, à essayer par les bêta-testeurs |
 | 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | **construite**, à essayer |
-| 3 | les jeux maison, l'import de jeux depuis l'app | plus tard |
+| 3 | l'import de jeux depuis l'app (MENU → File → Add games...) | **construit**, à essayer |
+| 4 | « Get homebrew games... » comme sur Android | plus tard |
 
 Sous **iOS 26 et plus récent**, le JIT par débogueur est plus difficile à
 obtenir : les jeux devraient y tourner sans JIT, plus lentement.
