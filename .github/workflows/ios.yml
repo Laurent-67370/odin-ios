@@ -1,0 +1,94 @@
+name: Odin iOS (experimental)
+
+# An unsigned .ipa of Odin for iPhone, built on a Mac: the Odin of
+# odin-android with its patch (the phone's menus, touch pad, folders, shared
+# with Android), Vulkan through MoltenVK. Sideloaded (SideStore, AltStore);
+# its games need the JIT a debugger enables (StikDebug).
+on:
+  push:
+    branches: ['**']
+    paths-ignore: ['**.md', 'docs/**']
+  workflow_dispatch:
+    inputs:
+      android_ref:
+        description: "The branch (or commit) of odin-android whose patch is built"
+        default: main
+
+permissions:
+  contents: write
+
+concurrency:
+  group: odin-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ipa:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: The version
+        run: echo "ODIN_IOS_VERSION=$(tr -d '[:space:]' < version.txt).$(git rev-list --count HEAD)" >> "$GITHUB_ENV"
+      - name: odin-android (the patch of Odin, shared with the APK)
+        uses: actions/checkout@v4
+        with:
+          repository: Laurent-67370/odin-android
+          ref: ${{ inputs.android_ref || vars.ODIN_ANDROID_REF || 'main' }}
+          path: odin-android
+      - name: Tools
+        run: brew install glslang ninja gawk
+      - name: Odin's sources, patched
+        run: |
+          odin-android/fetch-odin.sh
+          echo "ODIN_COMMIT=$(cat odin-android/odin.version)" >> "$GITHUB_ENV"
+          echo "ODIN_ANDROID_SHA=$(git -C odin-android rev-parse --short HEAD)" >> "$GITHUB_ENV"
+      - name: OpenGL ES 3.2 headers (Khronos), the functions iOS lacks stubbed
+        run: |
+          mkdir -p khr/GLES3 khr/GLES2 khr/KHR
+          base=https://raw.githubusercontent.com/KhronosGroup
+          curl -fsSL -o khr/GLES3/gl32.h $base/OpenGL-Registry/main/api/GLES3/gl32.h
+          curl -fsSL -o khr/GLES3/gl3platform.h $base/OpenGL-Registry/main/api/GLES3/gl3platform.h
+          curl -fsSL -o khr/GLES2/gl2ext.h $base/OpenGL-Registry/main/api/GLES2/gl2ext.h
+          curl -fsSL -o khr/GLES2/gl2platform.h $base/OpenGL-Registry/main/api/GLES2/gl2platform.h
+          curl -fsSL -o khr/KHR/khrplatform.h $base/EGL-Registry/main/api/KHR/khrplatform.h
+          sdk=$(xcrun --sdk iphoneos --show-sdk-path)
+          python3 ios/gl-stubs.py khr/GLES3/gl32.h "$sdk/System/Library/Frameworks/OpenGLES.framework/Headers/ES3/gl.h" khr/gl_stubs.c
+      - name: MoltenVK (Vulkan on Metal)
+        run: |
+          curl -fsSL -o moltenvk.tar https://github.com/KhronosGroup/MoltenVK/releases/latest/download/MoltenVK-ios.tar
+          tar xf moltenvk.tar
+          find . -type d -name 'MoltenVK.framework' -path '*ios-arm64/*' | grep -v simulator | head -5
+      - name: Odin for iOS (arm64)
+        run: |
+          cmake -S odin-android/odin-src -B build -G Ninja \
+            -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=16.3 \
+            -DODIN_BUNDLED_LIBS=ON -DODIN_NATIVE=OFF -DODIN_LTO=OFF \
+            -DGLSLANG="$(command -v glslangValidator)" -DAWK="$(command -v gawk)" \
+            -DODIN_GLES_HEADERS="$PWD/khr" -DODIN_GL_STUBS="$PWD/khr/gl_stubs.c" \
+            -DODIN_VERSION="ios-${ODIN_IOS_VERSION}-odin-${ODIN_COMMIT::7}"
+          ninja -C build -k 0 2>&1 | tee build.log | grep -E 'error:|FAILED|undefined' | sort -u | head -80
+          test -x build/bin/Odin.app/Odin
+      - name: The .ipa (unsigned)
+        run: |
+          app=build/bin/Odin.app
+          cp -R build/share/odin/. "$app/"
+          mkdir -p "$app/Frameworks"
+          cp -R "$(find . -type d -name 'MoltenVK.framework' -path '*dynamic*ios-arm64/*' | grep -v simulator | head -1)" "$app/Frameworks/"
+          mkdir Payload && cp -R "$app" Payload/ && zip -qr odin.ipa Payload
+          ls -l odin.ipa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: odin-ios
+          path: |
+            odin.ipa
+            build.log
+      - name: Published (release "odin-ios")
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete odin-ios --yes --cleanup-tag || true
+          gh release create odin-ios odin.ipa --target "$GITHUB_SHA" --prerelease \
+            --title "Odin iOS ${ODIN_IOS_VERSION} (experimental)" \
+            --notes "Experimental, unsigned build of Odin for iPhone (arm64, iOS 16.3+), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. Sideload odin.ipa with SideStore or AltStore. Put hikaru.zip, mie.zip and the games in the app's folder roms/ (Files app, On My iPhone, Odin). Step 1: menus, game list, touch gamepad; the games need the JIT (StikDebug), not done yet."
