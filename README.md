@@ -4,29 +4,28 @@ Version iPhone d'[Odin](https://github.com/Tovarichtch/Odin), l'émulateur SEGA
 Hikaru et Gaelco ATV Track de Réda Chérif-Touil (GPL 3), tirée du portage
 Android [odin-android](https://github.com/Laurent-67370/odin-android).
 
-**État : expérimental.** Premier essai réel (version 0.1.6, iPad Pro M5 sous
-iOS 27, LiveContainer, JIT par StikDebug) : l'app s'ouvre, Vulkan tourne sur
-le GPU M5, les menus, la liste des jeux et une manette DualSense marchent, un
-jeu (Star Wars Racer Arcade) se charge et démarre ; **puis l'app se ferme**
-au bout d'une dizaine de secondes, sans erreur dans `odin.log`. Piste
-principale : le JIT, qu'iOS 26 et plus récent n'accorde plus de la même façon.
-La version suivante demande sa mémoire de code à StikDebug, comme les
-émulateurs iOS : sous iOS 26 et plus récent, choisir le script
-**`universal.js`** dans StikDebug. D'autres
-**bêta-testeurs** sont les bienvenus :
+**État : expérimental, mais les jeux tournent.** Sur un iPad Pro M5 sous
+iOS 27 (LiveContainer), **sans JIT**, un bêta-testeur a joué une course
+complète de Star Wars Racer Arcade, fluide à l'œil, environ 60 images par
+seconde, à la manette DualSense : Vulkan sur le GPU M5, les menus, la liste des
+jeux, tout marche. **Avec le JIT** (StikDebug), la version 0.1.6 se fermait
+quelques secondes après le début du jeu : sous iOS 26 et plus récent, la
+mémoire qu'une app se donne ne peut pas exécuter de code. La version 0.1.8 la
+demande à StikDebug (script **`universal.js`**), comme les émulateurs iOS : à
+essayer. Sans JIT, un appareil moins puissant qu'un M5 risque d'être trop lent.
+D'autres **bêta-testeurs** sont les bienvenus, surtout avec un iPhone :
 [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56).
 
 > **In English, for beta testers:** an experimental, unsigned iPhone build of
 > Odin (iOS 16.3+, arm64). Download
 > [odin.ipa](https://github.com/Laurent-67370/odin-ios/releases/download/odin-ios/odin.ipa),
 > sideload it with SideStore or AltStore, then in Odin use MENU → File → Add
-> games... to pick `hikaru.zip`, `mie.zip` and your games from Files. First real test
-> (iPad Pro M5, iOS 27, LiveContainer, JIT by StikDebug): the menus, the
-> pad and the graphics work, a game loads and starts, then the app closes
-> after about ten seconds: the JIT is the main suspect, the next build asks
-> StikDebug for its code memory, as iOS emulators do: on iOS 26 and later,
-> pick the **`universal.js`** script in StikDebug. Without StikDebug the games
-> run slower (`JIT: off` in `odin.log`). Please report your iPhone model, iOS version, screenshots and
+> games... to pick `hikaru.zip`, `mie.zip` and your games from Files. On an iPad Pro M5
+> (iOS 27, LiveContainer), **without JIT**, a full race of Star Wars Racer
+> Arcade ran smoothly, about 60 fps, with a DualSense. With JIT, build 0.1.6
+> closed a few seconds into the game; 0.1.8 asks StikDebug for its JIT memory
+> the iOS 26 way: pick the **`universal.js`** script in StikDebug (to be
+> tried). `odin.log` says `JIT: on` or `JIT: off`. Please report your iPhone model, iOS version, screenshots and
 > `odin.log` (Files → On My iPhone → Odin) on
 > [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56) or in
 > [this repository's issues](https://github.com/Laurent-67370/odin-ios/issues).
@@ -58,8 +57,8 @@ soi-même.
 
 | Étape | Contenu | État |
 |---|---|---|
-| 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, dossiers dans Fichiers ; Vulkan par MoltenVK | **marche** (iPad Pro M5, iOS 27) |
-| 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | le jeu démarre puis l'app se ferme (JIT on, iOS 27) : **en cours** |
+| 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, manette Bluetooth, dossiers dans Fichiers ; Vulkan par MoltenVK | **marche** (iPad Pro M5, iOS 27) |
+| 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | **sans JIT : marche** (Star Wars Racer, ~60 images/s sur iPad Pro M5) ; avec le JIT sous iOS 26+ : 0.1.8 à essayer |
 | 3 | l'import de jeux depuis l'app (MENU → File → Add games...) | **construit**, à essayer |
 | 4 | « Get homebrew games... » comme sur Android | plus tard |
 
@@ -75,7 +74,9 @@ Sans StikDebug, les jeux tournent sans JIT, plus lentement.
 | Version | Appareil | Résultat |
 |---|---|---|
 | 0.1.3 – 0.1.5 | iPad Pro M5, iOS 27, LiveContainer | écran noir : SDL ne trouvait pas Vulkan (MoltenVK) ; corrigé en 0.1.6 |
-| 0.1.6 | iPad Pro M5, iOS 27, LiveContainer, StikDebug | menus, manette DualSense, Vulkan, jeu chargé (`Running`, `JIT: on`) ; l'app se ferme une dizaine de secondes plus tard |
+| 0.1.6 | iPad Pro M5, iOS 27, LiveContainer, StikDebug | menus, manette DualSense, Vulkan, jeu chargé (`Running`, `JIT: on`) ; l'app se ferme une dizaine de secondes plus tard : la mémoire du JIT |
+| 0.1.6 | iPad Pro M5, iOS 27, LiveContainer, sans JIT | **une course complète de Star Wars Racer Arcade**, fluide à l'œil (~60 images/s), manette DualSense ; le jeu se ferme proprement |
+| 0.1.8 | — | le JIT d'iOS 26 par StikDebug (`universal.js`) : à essayer |
 
 ## Bêta-testeurs : ce qui aide
 
