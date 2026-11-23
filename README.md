@@ -38,7 +38,7 @@ reconstruite à chaque modification). L'`.ipa` n'est pas signé : on l'installe
 soi-même.
 
 **Toutes les versions** depuis la 0.1.8 restent disponibles, chacune dans sa
-publication `ios-0.1.N` : [la liste](https://github.com/Laurent-67370/odin-ios/releases)
+publication `ios-0.1.NNN` (par exemple `ios-0.1.008` pour la 0.1.8) : [la liste](https://github.com/Laurent-67370/odin-ios/releases)
 (pour revenir à une version précédente si la dernière pose problème) ; ce que
 chacune apporte : [Les versions](#les-versions).
 
@@ -88,11 +88,12 @@ Odin l'affiche dans MENU → About (`ios-0.1.N-odin-xxxxxxx`).
 | 0.1.4 | sans JIT, les instructions décodées au lieu d'un plantage ; avec le JIT, la mémoire du code projetée deux fois | non essayée (même défaut de Vulkan) | non |
 | 0.1.5 | MENU → File → **Add games...** : les jeux choisis dans Fichiers ou iCloud | non essayée (même défaut de Vulkan) | non |
 | 0.1.6 | **Vulkan trouvé** : MoltenVK donné à SDL, aussi sous LiveContainer ; `odin.log` dit où | **les jeux tournent sans JIT** (iPad Pro M5, ~60 images/s) ; avec le JIT, l'app se ferme | non |
-| 0.1.8 | **le JIT d'iOS 26** : la mémoire du code demandée à StikDebug (script `universal.js`) ; la publication ne reste plus en brouillon | à essayer | [ios-0.1.8](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.8) |
-| 0.1.10 | MENU → File → **Get homebrew games...** : les jeux maison d'Odin téléchargés depuis GitHub | à essayer | [ios-0.1.10](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.10) |
-| 0.1.11 | chaque version gardée dans sa publication `ios-0.1.N` | rien de neuf dans l'app | [ios-0.1.11](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.11) |
-| 0.1.12 | les versions documentées (ce tableau, les notes des publications) | rien de neuf dans l'app | [ios-0.1.12](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.12) |
-| 0.1.13 | les publications rangées dans l'ordre des versions, la dernière (`odin-ios`) en tête | rien de neuf dans l'app | [ios-0.1.13](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.13) |
+| 0.1.8 | **le JIT d'iOS 26** : la mémoire du code demandée à StikDebug (script `universal.js`) ; la publication ne reste plus en brouillon | à essayer | [0.1.8](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.008) |
+| 0.1.10 | MENU → File → **Get homebrew games...** : les jeux maison d'Odin téléchargés depuis GitHub | à essayer | [0.1.10](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.010) |
+| 0.1.11 | chaque version gardée dans sa publication `ios-0.1.N` | rien de neuf dans l'app | [0.1.11](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.011) |
+| 0.1.12 | les versions documentées (ce tableau, les notes des publications) | rien de neuf dans l'app | [0.1.12](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.012) |
+| 0.1.13 | les publications rangées dans l'ordre des versions, la dernière (`odin-ios`) en tête | rien de neuf dans l'app | [0.1.13](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.013) |
+| 0.1.14 | les tags sur trois chiffres (`ios-0.1.008`) : GitHub range les publications par tag, en texte | rien de neuf dans l'app | [0.1.14](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.014) |
 
 Les notes de chaque publication reprennent le titre de sa modification.
 
