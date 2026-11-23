@@ -8,6 +8,10 @@ on:
   push:
     branches: ['**']
     paths-ignore: ['**.md', 'docs/**']
+  # Every day: a new version when odin-android's patch changed (a change
+  # there does not start this workflow); nothing built otherwise
+  schedule:
+    - cron: '17 4 * * *'
   workflow_dispatch:
     inputs:
       android_ref:
@@ -16,8 +20,6 @@ on:
 
 permissions:
   contents: write
-  # The .ipa of earlier runs, kept as their versions (gh run download)
-  actions: read
 
 # One at a time, whatever the branch: they all publish the same release
 concurrency:
@@ -25,19 +27,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  ipa:
-    # macos-15-intel: the arm64 Macs of GitHub are often saturated (a job
-    # waited hours in the queue); the .ipa is cross-compiled either way
-    runs-on: macos-15-intel
+  # Which odin-android, and the version of the app: a Mac builds it only
+  # when it is new, or when this repository changed
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      android_ref: ${{ steps.which.outputs.android_ref }}
+      version: ${{ steps.version.outputs.version }}
+      new: ${{ steps.version.outputs.new }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: The version
-        run: echo "ODIN_IOS_VERSION=$(tr -d '[:space:]' < version.txt).$(git rev-list --count HEAD)" >> "$GITHUB_ENV"
       # The branch of odin-android of the same name as this one when there is
       # one (a patch tried for iOS before it is merged), else main
       - name: Which odin-android
+        id: which
         env:
           WANT: ${{ inputs.android_ref || vars.ODIN_ANDROID_REF }}
         run: |
@@ -47,13 +52,56 @@ jobs:
             ref="$GITHUB_REF_NAME"
           fi
           echo "ANDROID_REF=${ref:-main}" >> "$GITHUB_ENV"
+          echo "android_ref=${ref:-main}" >> "$GITHUB_OUTPUT"
           echo "odin-android: ${ref:-main}"
+      - uses: actions/checkout@v4
+        with:
+          repository: Laurent-67370/odin-android
+          ref: ${{ env.ANDROID_REF }}
+          path: odin-android
+          fetch-depth: 0
+      # The version counts the changes of the app alone: those of Odin's
+      # patch (odin-android: patches/, odin.version) and of what builds it
+      # here (ios/), from 0.1.14 on; a change of a README or of the workflow
+      # makes no new version, and then nothing is published
+      - name: The version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          android=$(git -C odin-android rev-list --count 66d473a..HEAD -- patches odin.version)
+          ios=$(git rev-list --count b09d08e..HEAD -- ios)
+          version="$(tr -d '[:space:]' < version.txt).$((14 + android + ios))"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          tag="ios-${version%.*}.$(printf '%03d' "${version##*.}")"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "new=no" >> "$GITHUB_OUTPUT"
+            echo "$version: already published, the app has not changed"
+          else
+            echo "new=yes" >> "$GITHUB_OUTPUT"
+            echo "$version: a new version"
+          fi
+  ipa:
+    needs: version
+    if: github.event_name != 'schedule' || needs.version.outputs.new == 'yes'
+    env:
+      ANDROID_REF: ${{ needs.version.outputs.android_ref }}
+      ODIN_IOS_VERSION: ${{ needs.version.outputs.version }}
+      NEW_VERSION: ${{ needs.version.outputs.new }}
+    # macos-15-intel: the arm64 Macs of GitHub are often saturated (a job
+    # waited hours in the queue); the .ipa is cross-compiled either way
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: odin-android (the patch of Odin, shared with the APK)
         uses: actions/checkout@v4
         with:
           repository: Laurent-67370/odin-android
           ref: ${{ env.ANDROID_REF }}
           path: odin-android
+          fetch-depth: 0
       - name: Tools
         run: brew install glslang ninja gawk
       - name: Odin's sources, patched
@@ -107,7 +155,7 @@ jobs:
             build.log
       # Published from main alone: a branch's .ipa is in its artifact
       - name: Published (release "odin-ios")
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && env.NEW_VERSION == 'yes'
         env:
           GH_TOKEN: ${{ github.token }}
         # Every release of the tag odin-ios deleted, drafts too (one left a
@@ -122,17 +170,12 @@ jobs:
           gh api "repos/$repo/git/refs" -f ref=refs/tags/odin-ios -f sha="$GITHUB_SHA" >/dev/null
           gh release create odin-ios odin.ipa --verify-tag --prerelease \
             --title "Odin iOS ${ODIN_IOS_VERSION} (experimental)" \
-            --notes "Experimental, unsigned build of Odin for iPhone (arm64, iOS 16.3+), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. Sideload odin.ipa with SideStore or AltStore. In Odin, MENU, File, Add games... picks hikaru.zip, mie.zip and the games from Files and copies them to the app's folder roms/ (they can also be put there by hand: Files app, On My iPhone, Odin; with LiveContainer, inside its folder). MENU, File, Get homebrew games... downloads the free games made for Odin. The games run without JIT, about half as fast; with JIT enabled by StikDebug (on iOS 26 and later with its script universal.js), at full speed. odin.log says JIT: on or JIT: off."
+            --notes "Experimental, unsigned build of Odin for iPhone (arm64, iOS 16.3+), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. Sideload odin.ipa with SideStore or AltStore. In Odin, MENU, File, Add games... picks hikaru.zip, mie.zip and the games from Files and copies them to the app's folder roms/ (they can also be put there by hand: Files app, On My iPhone, Odin; with LiveContainer, inside its folder). MENU, File, Get homebrew games... downloads the free games made for Odin, each told new, installed or with an update. The games run without JIT, about half as fast; with JIT enabled by StikDebug (on iOS 26 and later with its script universal.js), at full speed. odin.log says JIT: on or JIT: off."
           test "$(gh release view odin-ios --json isDraft --jq .isDraft)" = false
-      # Every version kept too, as its own release ios-<version>: this one,
-      # and those of the earlier runs of main from 0.1.8 on, from their
-      # artifacts (kept 90 days), when they have no release yet. Their notes
-      # say what each brought (the title of its change). An earlier one is
-      # tagged on this commit: GitHub refuses this workflow a tag on a
-      # commit whose workflow differs; its notes name the commit it was
-      # built from.
+      # Every version kept too, as its own release ios-<version>, its notes
+      # saying what it brought (the title of its change)
       - name: Every version (releases ios-0.1.NNN)
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && env.NEW_VERSION == 'yes'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -146,25 +189,10 @@ jobs:
             gh api "repos/$repo/git/refs" -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" >/dev/null 2>&1 || true
             gh release create "$tag" "$2" --verify-tag --prerelease --title "Odin iOS $1 (experimental)" --notes "$3"
           }
-          about() {
-            echo "$(git log -1 --format=%s "$1" | sed 's/ (#[0-9]*)$//')."
-          }
+          # What it brought: the title of the last change of the app
+          about=$(git -C odin-android log -1 --format=%s -- patches odin.version | sed 's/ (#[0-9]*)$//')
           keep "$ODIN_IOS_VERSION" odin.ipa \
-            "$(about "$GITHUB_SHA") Odin for iPhone $ODIN_IOS_VERSION (experimental, unsigned), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. What each version brought: the README. The latest build is always in the release odin-ios."
-          base="$(tr -d '[:space:]' < version.txt)"
-          for run in $(gh run list --workflow ios.yml --branch main --status success --limit 100 \
-                       --json databaseId,headSha --jq '.[] | "\(.databaseId):\(.headSha)"'); do
-            id="${run%%:*}"; sha="${run#*:}"
-            [ "$sha" = "$GITHUB_SHA" ] && continue
-            count=$(git rev-list --count "$sha" 2>/dev/null) || continue
-            [ "$count" -ge 8 ] || continue
-            if gh release view "$(tag_of "$base.$count")" >/dev/null 2>&1; then continue; fi
-            rm -rf earlier
-            gh run download "$id" -n odin-ios -D earlier >/dev/null 2>&1 || continue
-            [ -f earlier/odin.ipa ] || continue
-            keep "$base.$count" earlier/odin.ipa \
-              "$(about "$sha") Earlier build of Odin for iPhone (experimental, unsigned), built from odin-ios ${sha::7} (run $id). What each version brought: the README. The latest build is always in the release odin-ios."
-          done
+            "$about. Odin for iPhone $ODIN_IOS_VERSION (experimental, unsigned), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. What each version brought: the README. The latest build is always in the release odin-ios."
       # The releases made before the tags had three digits (ios-0.1.8)
       # made again under them (ios-0.1.008), their title and notes kept
       - name: The tags of the versions on three digits
