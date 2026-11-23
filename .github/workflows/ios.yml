@@ -8,6 +8,10 @@ on:
   push:
     branches: ['**']
     paths-ignore: ['**.md', 'docs/**']
+  # Every day: a new version when odin-android's patch changed (a change
+  # there does not start this workflow); nothing built otherwise
+  schedule:
+    - cron: '17 4 * * *'
   workflow_dispatch:
     inputs:
       android_ref:
@@ -23,10 +27,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  ipa:
-    # macos-15-intel: the arm64 Macs of GitHub are often saturated (a job
-    # waited hours in the queue); the .ipa is cross-compiled either way
-    runs-on: macos-15-intel
+  # Which odin-android, and the version of the app: a Mac builds it only
+  # when it is new, or when this repository changed
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      android_ref: ${{ steps.which.outputs.android_ref }}
+      version: ${{ steps.version.outputs.version }}
+      new: ${{ steps.version.outputs.new }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,6 +42,7 @@ jobs:
       # The branch of odin-android of the same name as this one when there is
       # one (a patch tried for iOS before it is merged), else main
       - name: Which odin-android
+        id: which
         env:
           WANT: ${{ inputs.android_ref || vars.ODIN_ANDROID_REF }}
         run: |
@@ -43,9 +52,9 @@ jobs:
             ref="$GITHUB_REF_NAME"
           fi
           echo "ANDROID_REF=${ref:-main}" >> "$GITHUB_ENV"
+          echo "android_ref=${ref:-main}" >> "$GITHUB_OUTPUT"
           echo "odin-android: ${ref:-main}"
-      - name: odin-android (the patch of Odin, shared with the APK)
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           repository: Laurent-67370/odin-android
           ref: ${{ env.ANDROID_REF }}
@@ -56,21 +65,43 @@ jobs:
       # here (ios/), from 0.1.14 on; a change of a README or of the workflow
       # makes no new version, and then nothing is published
       - name: The version
+        id: version
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           android=$(git -C odin-android rev-list --count 66d473a..HEAD -- patches odin.version)
           ios=$(git rev-list --count b09d08e..HEAD -- ios)
           version="$(tr -d '[:space:]' < version.txt).$((14 + android + ios))"
-          echo "ODIN_IOS_VERSION=$version" >> "$GITHUB_ENV"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           tag="ios-${version%.*}.$(printf '%03d' "${version##*.}")"
           if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "NEW_VERSION=no" >> "$GITHUB_ENV"
+            echo "new=no" >> "$GITHUB_OUTPUT"
             echo "$version: already published, the app has not changed"
           else
-            echo "NEW_VERSION=yes" >> "$GITHUB_ENV"
+            echo "new=yes" >> "$GITHUB_OUTPUT"
             echo "$version: a new version"
           fi
+  ipa:
+    needs: version
+    if: github.event_name != 'schedule' || needs.version.outputs.new == 'yes'
+    env:
+      ANDROID_REF: ${{ needs.version.outputs.android_ref }}
+      ODIN_IOS_VERSION: ${{ needs.version.outputs.version }}
+      NEW_VERSION: ${{ needs.version.outputs.new }}
+    # macos-15-intel: the arm64 Macs of GitHub are often saturated (a job
+    # waited hours in the queue); the .ipa is cross-compiled either way
+    runs-on: macos-15-intel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: odin-android (the patch of Odin, shared with the APK)
+        uses: actions/checkout@v4
+        with:
+          repository: Laurent-67370/odin-android
+          ref: ${{ env.ANDROID_REF }}
+          path: odin-android
+          fetch-depth: 0
       - name: Tools
         run: brew install glslang ninja gawk
       - name: Odin's sources, patched

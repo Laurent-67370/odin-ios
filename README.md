@@ -81,7 +81,8 @@ Sans StikDebug, les jeux tournent sans JIT, plus lentement.
 Le numéro est `0.1.N`. Depuis la 0.1.15, il n'augmente que quand **l'app
 change** : le code d'Odin (le patch d'[odin-android](https://github.com/Laurent-67370/odin-android))
 ou ce qui la construit ici (`ios/`). Une modification du README ou de la
-publication ne crée pas de nouvelle version. Jusqu'à la 0.1.14, N comptait
+publication ne crée pas de nouvelle version. Chaque jour, une vérification
+légère publie la nouvelle version quand le patch d'odin-android a changé. Jusqu'à la 0.1.14, N comptait
 toutes les modifications de ce dépôt, d'où les versions sans rien de neuf dans
 l'app et les numéros qui manquent. Odin affiche le numéro dans MENU → About
 (`ios-0.1.N-odin-xxxxxxx`).
