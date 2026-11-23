@@ -1,7 +1,8 @@
 # Odin pour iPhone (expérimental)
 
 Version iPhone d'[Odin](https://github.com/Tovarichtch/Odin), l'émulateur SEGA
-Hikaru et Gaelco ATV Track de Réda Chérif-Touil (GPL 3), tirée du portage
+Hikaru et Gaelco (ATV Track, Smashing Drive, Gaelco 3D, Rolling Extreme) de
+Réda Chérif-Touil (GPL 3), tirée du portage
 Android [odin-android](https://github.com/Laurent-67370/odin-android).
 
 **État : expérimental, mais les jeux tournent.** Sur un iPad Pro M5 sous
@@ -117,6 +118,7 @@ l'app et les numéros qui manquent. Odin affiche le numéro dans MENU → About
 | 0.1.14 | les tags sur trois chiffres (`ios-0.1.008`) : GitHub range les publications par tag, en texte | rien de neuf dans l'app | [0.1.14](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.014) |
 | 0.1.15 | « Get homebrew games... » signale les **mises à jour** des jeux maison, comme sur Android (le CRC de leur première EPROM) ; « All the new and updated » | à essayer | [0.1.15](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.015) |
 | 0.1.16 | sous iOS 26+, si StikDebug ne donne pas la mémoire du JIT, Odin tourne **sans JIT au lieu de se fermer** ; `odin.log` dit ce que StikDebug a répondu | à essayer | [0.1.16](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.016) |
+| 0.1.17 | **Odin à jour** (`571e6f2`) : les jeux Gaelco 3D (Football Power, Radikal Bikers, Speed Up, Surf Planet) et Rolling Extreme ; son processeur C82 n'est recompilé que sur PC, il est interprété sur iPhone | à essayer | [0.1.17](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.017) |
 
 Les notes de chaque publication reprennent le titre de sa modification.
 
