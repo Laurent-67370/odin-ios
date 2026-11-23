@@ -126,7 +126,11 @@ jobs:
           test "$(gh release view odin-ios --json isDraft --jq .isDraft)" = false
       # Every version kept too, as its own release ios-<version>: this one,
       # and those of the earlier runs of main from 0.1.8 on, from their
-      # artifacts (kept 90 days), when they have no release yet
+      # artifacts (kept 90 days), when they have no release yet. Their notes
+      # say what each brought (the title of its change). An earlier one is
+      # tagged on this commit: GitHub refuses this workflow a tag on a
+      # commit whose workflow differs; its notes name the commit it was
+      # built from.
       - name: Every version (releases ios-0.1.N)
         if: github.ref == 'refs/heads/main'
         env:
@@ -136,11 +140,14 @@ jobs:
           keep() {
             tag="ios-$1"
             if gh release view "$tag" >/dev/null 2>&1; then return 0; fi
-            gh api "repos/$repo/git/refs" -f ref="refs/tags/$tag" -f sha="$2" >/dev/null 2>&1 || true
-            gh release create "$tag" "$3" --verify-tag --prerelease --title "Odin iOS $1 (experimental)" --notes "$4"
+            gh api "repos/$repo/git/refs" -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" >/dev/null 2>&1 || true
+            gh release create "$tag" "$2" --verify-tag --prerelease --title "Odin iOS $1 (experimental)" --notes "$3"
           }
-          keep "$ODIN_IOS_VERSION" "$GITHUB_SHA" odin.ipa \
-            "Odin for iPhone $ODIN_IOS_VERSION (experimental, unsigned), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. The latest build is always in the release odin-ios."
+          about() {
+            echo "$(git log -1 --format=%s "$1" | sed 's/ (#[0-9]*)$//')."
+          }
+          keep "$ODIN_IOS_VERSION" odin.ipa \
+            "$(about "$GITHUB_SHA") Odin for iPhone $ODIN_IOS_VERSION (experimental, unsigned), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. What each version brought: the README. The latest build is always in the release odin-ios."
           base="$(tr -d '[:space:]' < version.txt)"
           for run in $(gh run list --workflow ios.yml --branch main --status success --limit 100 \
                        --json databaseId,headSha --jq '.[] | "\(.databaseId):\(.headSha)"'); do
@@ -152,6 +159,6 @@ jobs:
             rm -rf earlier
             gh run download "$id" -n odin-ios -D earlier >/dev/null 2>&1 || continue
             [ -f earlier/odin.ipa ] || continue
-            keep "$base.$count" "$sha" earlier/odin.ipa \
-              "Earlier build of Odin for iPhone (experimental, unsigned), odin-ios ${sha::7}, run $id. The latest build is always in the release odin-ios."
+            keep "$base.$count" earlier/odin.ipa \
+              "$(about "$sha") Earlier build of Odin for iPhone (experimental, unsigned), built from odin-ios ${sha::7} (run $id). What each version brought: the README. The latest build is always in the release odin-ios."
           done

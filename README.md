@@ -39,7 +39,8 @@ soi-même.
 
 **Toutes les versions** depuis la 0.1.8 restent disponibles, chacune dans sa
 publication `ios-0.1.N` : [la liste](https://github.com/Laurent-67370/odin-ios/releases)
-(pour revenir à une version précédente si la dernière pose problème).
+(pour revenir à une version précédente si la dernière pose problème) ; ce que
+chacune apporte : [Les versions](#les-versions).
 
 ## Installer
 
@@ -74,6 +75,25 @@ protocole de StikJIT), qui la prépare avec son script **`universal.js`** ;
 Odin y écrit par une seconde projection. `odin.log` dit d'où vient sa mémoire
 (`JIT: … KB of code memory from the debugger` ou `mapped twice by the app`).
 Sans StikDebug, les jeux tournent sans JIT, plus lentement.
+
+## Les versions
+
+Le numéro est `0.1.N`, N le nombre de modifications de ce dépôt : une
+modification du README seul ne construit rien, d'où les numéros qui manquent.
+Odin l'affiche dans MENU → About (`ios-0.1.N-odin-xxxxxxx`).
+
+| Version | Ce qu'elle apporte | Essayée sur un appareil | À télécharger |
+|---|---|---|---|
+| 0.1.3 | la première qui se construit (Mac Intel de GitHub) : menus, liste des jeux, manette tactile, Vulkan par MoltenVK | écran noir (Vulkan pas trouvé) | non |
+| 0.1.4 | sans JIT, les instructions décodées au lieu d'un plantage ; avec le JIT, la mémoire du code projetée deux fois | non essayée (même défaut de Vulkan) | non |
+| 0.1.5 | MENU → File → **Add games...** : les jeux choisis dans Fichiers ou iCloud | non essayée (même défaut de Vulkan) | non |
+| 0.1.6 | **Vulkan trouvé** : MoltenVK donné à SDL, aussi sous LiveContainer ; `odin.log` dit où | **les jeux tournent sans JIT** (iPad Pro M5, ~60 images/s) ; avec le JIT, l'app se ferme | non |
+| 0.1.8 | **le JIT d'iOS 26** : la mémoire du code demandée à StikDebug (script `universal.js`) ; la publication ne reste plus en brouillon | à essayer | [ios-0.1.8](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.8) |
+| 0.1.10 | MENU → File → **Get homebrew games...** : les jeux maison d'Odin téléchargés depuis GitHub | à essayer | [ios-0.1.10](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.10) |
+| 0.1.11 | chaque version gardée dans sa publication `ios-0.1.N` | rien de neuf dans l'app | [ios-0.1.11](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.11) |
+| 0.1.12 | les versions documentées (ce tableau, les notes des publications) | rien de neuf dans l'app | [ios-0.1.12](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.12) |
+
+Les notes de chaque publication reprennent le titre de sa modification.
 
 ## Historique des essais
 
@@ -113,7 +133,6 @@ sur un Mac de GitHub :
 3. assemble `odin.ipa` (non signé) et le publie.
 
 Le numéro de version est `0.1.N` (`version.txt`, puis le nombre de
-modifications de ce dépôt) ; Odin l'affiche dans MENU → About
-(`ios-0.1.N-odin-xxxxxxx`).
+modifications de ce dépôt) : voir [Les versions](#les-versions).
 
 Code écrit avec Claude Code (Claude Opus 5.5).
