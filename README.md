@@ -74,7 +74,7 @@ n'en est pas au même point.
 | MENU → File → **Add games...** (import, vérification « ready to play ») | oui, essayé | oui (sélecteur de Fichiers/iCloud), **pas encore essayé** |
 | MENU → File → **Get homebrew games...** (nouveau, installé, mise à jour) | oui, essayé ; cases à cocher | oui ; un bouton par jeu ou « tous les nouveaux et mis à jour », **pas encore essayé** |
 | Les jeux | à pleine vitesse (JIT toujours actif) | **sans JIT** : marchent, environ deux fois moins vite (fluide sur iPad Pro M5) |
-| JIT | toujours actif | par StikDebug ; sous iOS 26+, script `universal.js` : **pas encore essayé** |
+| JIT | toujours actif | par StikDebug ; sous iOS 26+, script `universal.js` : **pas encore réussi** (iPad Pro M5, iOS 27 : l'app se fermait ; depuis la 0.1.16, sans réponse de StikDebug, Odin tourne sans JIT au lieu de se fermer) |
 | Installation | APK signé | `.ipa` non signé, sideload (SideStore, AltStore, LiveContainer) |
 
 
@@ -116,6 +116,7 @@ l'app et les numéros qui manquent. Odin affiche le numéro dans MENU → About
 | 0.1.13 | les publications rangées dans l'ordre des versions, la dernière (`odin-ios`) en tête | rien de neuf dans l'app | [0.1.13](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.013) |
 | 0.1.14 | les tags sur trois chiffres (`ios-0.1.008`) : GitHub range les publications par tag, en texte | rien de neuf dans l'app | [0.1.14](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.014) |
 | 0.1.15 | « Get homebrew games... » signale les **mises à jour** des jeux maison, comme sur Android (le CRC de leur première EPROM) ; « All the new and updated » | à essayer | [0.1.15](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.015) |
+| 0.1.16 | sous iOS 26+, si StikDebug ne donne pas la mémoire du JIT, Odin tourne **sans JIT au lieu de se fermer** ; `odin.log` dit ce que StikDebug a répondu | à essayer | [0.1.16](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.016) |
 
 Les notes de chaque publication reprennent le titre de sa modification.
 
@@ -127,6 +128,7 @@ Les notes de chaque publication reprennent le titre de sa modification.
 | 0.1.6 | iPad Pro M5, iOS 27, LiveContainer, StikDebug | menus, manette DualSense, Vulkan, jeu chargé (`Running`, `JIT: on`) ; l'app se ferme une dizaine de secondes plus tard : la mémoire du JIT |
 | 0.1.6 | iPad Pro M5, iOS 27, LiveContainer, sans JIT | **une course complète de Star Wars Racer Arcade**, fluide à l'œil (~60 images/s), manette DualSense ; le jeu se ferme proprement |
 | 0.1.8 | — | le JIT d'iOS 26 par StikDebug (`universal.js`) : à essayer |
+| 0.1.12 | iPad Pro M5, iOS 27, LiveContainer, StikDebug | JIT on, mais `odin.log` montre que StikDebug n'a pas fourni la mémoire (« mapped twice by the app ») : l'app se ferme ; sans JIT, 60 images/s en résolution maximale et filtrage anisotrope maximal |
 
 ## Bêta-testeurs : ce qui aide
 
