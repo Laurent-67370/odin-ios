@@ -162,3 +162,30 @@ jobs:
             keep "$base.$count" earlier/odin.ipa \
               "$(about "$sha") Earlier build of Odin for iPhone (experimental, unsigned), built from odin-ios ${sha::7} (run $id). What each version brought: the README. The latest build is always in the release odin-ios."
           done
+      # GitHub lists the releases by the date they were made: those of the
+      # versions made again in the order of their numbers when they are not
+      # (the older ones were made from their artifacts after newer ones), and
+      # odin-ios, the latest, made last, so that it comes first
+      - name: The releases in the order of the versions
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          made=$(gh release list --limit 100 --json tagName,createdAt \
+                 --jq '[.[] | select(.tagName | startswith("ios-") or . == "odin-ios")] | sort_by(.createdAt) | .[].tagName')
+          wanted=$( (echo "$made" | grep '^ios-' | sort -V; echo odin-ios) )
+          if [ "$made" = "$wanted" ]; then echo "in order"; exit 0; fi
+          # The first ones already in their place are kept, the others made
+          # again (usually odin-ios alone, made before the new version)
+          kept=0
+          paste -d' ' <(echo "$made") <(echo "$wanted") > pairs.txt
+          while read -r a b; do [ "$a" = "$b" ] || break; kept=$((kept + 1)); done < pairs.txt
+          for tag in $(echo "$wanted" | tail -n +$((kept + 1))); do
+            rm -rf again && mkdir again
+            gh release download "$tag" -p odin.ipa -D again
+            title=$(gh release view "$tag" --json name --jq .name)
+            gh release view "$tag" --json body --jq .body > again/notes.txt
+            gh release delete "$tag" --yes
+            gh release create "$tag" again/odin.ipa --verify-tag --prerelease --title "$title" --notes-file again/notes.txt
+          done
+          test "$(gh release view odin-ios --json isDraft --jq .isDraft)" = false

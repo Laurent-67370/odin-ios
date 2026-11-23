@@ -92,6 +92,7 @@ Odin l'affiche dans MENU → About (`ios-0.1.N-odin-xxxxxxx`).
 | 0.1.10 | MENU → File → **Get homebrew games...** : les jeux maison d'Odin téléchargés depuis GitHub | à essayer | [ios-0.1.10](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.10) |
 | 0.1.11 | chaque version gardée dans sa publication `ios-0.1.N` | rien de neuf dans l'app | [ios-0.1.11](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.11) |
 | 0.1.12 | les versions documentées (ce tableau, les notes des publications) | rien de neuf dans l'app | [ios-0.1.12](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.12) |
+| 0.1.13 | les publications rangées dans l'ordre des versions, la dernière (`odin-ios`) en tête | rien de neuf dans l'app | [ios-0.1.13](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.13) |
 
 Les notes de chaque publication reprennent le titre de sa modification.
 
