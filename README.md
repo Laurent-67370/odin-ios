@@ -37,6 +37,10 @@ D'autres **bêta-testeurs** sont les bienvenus, surtout avec un iPhone :
 reconstruite à chaque modification). L'`.ipa` n'est pas signé : on l'installe
 soi-même.
 
+**Toutes les versions** depuis la 0.1.8 restent disponibles, chacune dans sa
+publication `ios-0.1.N` : [la liste](https://github.com/Laurent-67370/odin-ios/releases)
+(pour revenir à une version précédente si la dernière pose problème).
+
 ## Installer
 
 1. Un iPhone **arm64** sous **iOS 16.3 ou plus récent** (une puce A14 ou plus
