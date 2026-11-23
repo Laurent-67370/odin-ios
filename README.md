@@ -67,7 +67,7 @@ chacune apporte : [Les versions](#les-versions).
 | 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, manette Bluetooth, dossiers dans Fichiers ; Vulkan par MoltenVK | **marche** (iPad Pro M5, iOS 27) |
 | 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | **sans JIT : marche** (Star Wars Racer, ~60 images/s sur iPad Pro M5) ; avec le JIT sous iOS 26+ : 0.1.8 à essayer |
 | 3 | l'import de jeux depuis l'app (MENU → File → Add games...) | **construit**, à essayer |
-| 4 | « Get homebrew games... » comme sur Android : la liste des jeux maison, chacun nouveau ou installé, téléchargé et ajouté | **construit**, à essayer |
+| 4 | « Get homebrew games... » comme sur Android : la liste des jeux maison, chacun nouveau, installé ou avec une mise à jour, téléchargé et ajouté | **construit**, à essayer |
 
 Sous **iOS 26 et plus récent**, la mémoire qu'une app se donne ne s'exécute
 plus, même avec le débogueur : Odin la demande à StikDebug (`brk #0xf00d`,
@@ -94,6 +94,7 @@ Odin l'affiche dans MENU → About (`ios-0.1.N-odin-xxxxxxx`).
 | 0.1.12 | les versions documentées (ce tableau, les notes des publications) | rien de neuf dans l'app | [0.1.12](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.012) |
 | 0.1.13 | les publications rangées dans l'ordre des versions, la dernière (`odin-ios`) en tête | rien de neuf dans l'app | [0.1.13](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.013) |
 | 0.1.14 | les tags sur trois chiffres (`ios-0.1.008`) : GitHub range les publications par tag, en texte | rien de neuf dans l'app | [0.1.14](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.014) |
+| 0.1.15 | « Get homebrew games... » signale les **mises à jour** des jeux maison, comme sur Android (le CRC de leur première EPROM) ; « All the new and updated » | à essayer | [0.1.15](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.015) |
 
 Les notes de chaque publication reprennent le titre de sa modification.
 
