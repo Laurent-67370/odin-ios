@@ -78,9 +78,13 @@ Sans StikDebug, les jeux tournent sans JIT, plus lentement.
 
 ## Les versions
 
-Le numéro est `0.1.N`, N le nombre de modifications de ce dépôt : une
-modification du README seul ne construit rien, d'où les numéros qui manquent.
-Odin l'affiche dans MENU → About (`ios-0.1.N-odin-xxxxxxx`).
+Le numéro est `0.1.N`. Depuis la 0.1.15, il n'augmente que quand **l'app
+change** : le code d'Odin (le patch d'[odin-android](https://github.com/Laurent-67370/odin-android))
+ou ce qui la construit ici (`ios/`). Une modification du README ou de la
+publication ne crée pas de nouvelle version. Jusqu'à la 0.1.14, N comptait
+toutes les modifications de ce dépôt, d'où les versions sans rien de neuf dans
+l'app et les numéros qui manquent. Odin affiche le numéro dans MENU → About
+(`ios-0.1.N-odin-xxxxxxx`).
 
 | Version | Ce qu'elle apporte | Essayée sur un appareil | À télécharger |
 |---|---|---|---|
@@ -135,7 +139,6 @@ sur un Mac de GitHub :
    d'iOS ;
 3. assemble `odin.ipa` (non signé) et le publie.
 
-Le numéro de version est `0.1.N` (`version.txt`, puis le nombre de
-modifications de ce dépôt) : voir [Les versions](#les-versions).
+Le numéro de version est `0.1.N` : voir [Les versions](#les-versions).
 
 Code écrit avec Claude Code (Claude Opus 5.5).
