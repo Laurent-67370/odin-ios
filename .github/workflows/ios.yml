@@ -131,14 +131,17 @@ jobs:
       # tagged on this commit: GitHub refuses this workflow a tag on a
       # commit whose workflow differs; its notes name the commit it was
       # built from.
-      - name: Every version (releases ios-0.1.N)
+      - name: Every version (releases ios-0.1.NNN)
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           repo="$GITHUB_REPOSITORY"
+          # The tag ios-0.1.008: GitHub lists the releases by their tags as
+          # text, so the number on three digits keeps 0.1.8 below 0.1.13
+          tag_of() { echo "ios-${1%.*}.$(printf '%03d' "${1##*.}")"; }
           keep() {
-            tag="ios-$1"
+            tag=$(tag_of "$1")
             if gh release view "$tag" >/dev/null 2>&1; then return 0; fi
             gh api "repos/$repo/git/refs" -f ref="refs/tags/$tag" -f sha="$GITHUB_SHA" >/dev/null 2>&1 || true
             gh release create "$tag" "$2" --verify-tag --prerelease --title "Odin iOS $1 (experimental)" --notes "$3"
@@ -155,37 +158,30 @@ jobs:
             [ "$sha" = "$GITHUB_SHA" ] && continue
             count=$(git rev-list --count "$sha" 2>/dev/null) || continue
             [ "$count" -ge 8 ] || continue
-            if gh release view "ios-$base.$count" >/dev/null 2>&1; then continue; fi
+            if gh release view "$(tag_of "$base.$count")" >/dev/null 2>&1; then continue; fi
             rm -rf earlier
             gh run download "$id" -n odin-ios -D earlier >/dev/null 2>&1 || continue
             [ -f earlier/odin.ipa ] || continue
             keep "$base.$count" earlier/odin.ipa \
               "$(about "$sha") Earlier build of Odin for iPhone (experimental, unsigned), built from odin-ios ${sha::7} (run $id). What each version brought: the README. The latest build is always in the release odin-ios."
           done
-      # GitHub lists the releases by the date they were made: those of the
-      # versions made again in the order of their numbers when they are not
-      # (the older ones were made from their artifacts after newer ones), and
-      # odin-ios, the latest, made last, so that it comes first
-      - name: The releases in the order of the versions
+      # The releases made before the tags had three digits (ios-0.1.8)
+      # made again under them (ios-0.1.008), their title and notes kept
+      - name: The tags of the versions on three digits
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          made=$(gh release list --limit 100 --json tagName,createdAt \
-                 --jq '[.[] | select(.tagName | startswith("ios-") or . == "odin-ios")] | sort_by(.createdAt) | .[].tagName')
-          wanted=$( (echo "$made" | grep '^ios-' | sort -V; echo odin-ios) )
-          if [ "$made" = "$wanted" ]; then echo "in order"; exit 0; fi
-          # The first ones already in their place are kept, the others made
-          # again (usually odin-ios alone, made before the new version)
-          kept=0
-          paste -d' ' <(echo "$made") <(echo "$wanted") > pairs.txt
-          while read -r a b; do [ "$a" = "$b" ] || break; kept=$((kept + 1)); done < pairs.txt
-          for tag in $(echo "$wanted" | tail -n +$((kept + 1))); do
-            rm -rf again && mkdir again
-            gh release download "$tag" -p odin.ipa -D again
-            title=$(gh release view "$tag" --json name --jq .name)
-            gh release view "$tag" --json body --jq .body > again/notes.txt
-            gh release delete "$tag" --yes
-            gh release create "$tag" again/odin.ipa --verify-tag --prerelease --title "$title" --notes-file again/notes.txt
+          repo="$GITHUB_REPOSITORY"
+          for old in $(gh release list --limit 100 --json tagName --jq '.[].tagName' | grep -E '^ios-[0-9]+\.[0-9]+\.[0-9]{1,2}$' | sort -V); do
+            new="ios-${old#ios-}"; new="${new%.*}.$(printf '%03d' "${old##*.}")"
+            if ! gh release view "$new" >/dev/null 2>&1; then
+              rm -rf again && mkdir again
+              gh release download "$old" -p odin.ipa -D again
+              title=$(gh release view "$old" --json name --jq .name)
+              gh release view "$old" --json body --jq .body > again/notes.txt
+              gh api "repos/$repo/git/refs" -f ref="refs/tags/$new" -f sha="$GITHUB_SHA" >/dev/null 2>&1 || true
+              gh release create "$new" again/odin.ipa --verify-tag --prerelease --title "$title" --notes-file again/notes.txt
+            fi
+            gh release delete "$old" --yes --cleanup-tag
           done
-          test "$(gh release view odin-ios --json isDraft --jq .isDraft)" = false
