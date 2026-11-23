@@ -4,20 +4,25 @@ Version iPhone d'[Odin](https://github.com/Tovarichtch/Odin), l'émulateur SEGA
 Hikaru et Gaelco ATV Track de Réda Chérif-Touil (GPL 3), tirée du portage
 Android [odin-android](https://github.com/Laurent-67370/odin-android).
 
-**État : expérimental.** L'app est construite pour s'ouvrir (menus, liste des
-jeux, manette tactile). Les jeux tournent **sans JIT**, plus lentement (Odin
-exécute alors les instructions décodées, environ deux fois moins vite) ; avec
-le JIT activé par **StikDebug**, à pleine vitesse (étape 2, à essayer). Personne ne l'a encore essayée sur un
-iPhone : des **bêta-testeurs** sont recherchés, l'appel est lancé sur
+**État : expérimental.** Premier essai réel (version 0.1.6, iPad Pro M5 sous
+iOS 27, LiveContainer, JIT par StikDebug) : l'app s'ouvre, Vulkan tourne sur
+le GPU M5, les menus, la liste des jeux et une manette DualSense marchent, un
+jeu (Star Wars Racer Arcade) se charge et démarre ; **puis l'app se ferme**
+au bout d'une dizaine de secondes, sans erreur dans `odin.log`. Piste
+principale : le JIT, qu'iOS 26 et plus récent n'accorde plus de la même façon ;
+un essai sans StikDebug (JIT off, plus lent) doit le confirmer. D'autres
+**bêta-testeurs** sont les bienvenus :
 [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56).
 
 > **In English, for beta testers:** an experimental, unsigned iPhone build of
 > Odin (iOS 16.3+, arm64). Download
 > [odin.ipa](https://github.com/Laurent-67370/odin-ios/releases/download/odin-ios/odin.ipa),
 > sideload it with SideStore or AltStore, then in Odin use MENU → File → Add
-> games... to pick `hikaru.zip`, `mie.zip` and your games from Files. Games run without JIT,
-> about half as fast; with JIT enabled by StikDebug, at full speed (to be
-> tried). `odin.log` says `JIT: on` or `JIT: off`. Please report your iPhone model, iOS version, screenshots and
+> games... to pick `hikaru.zip`, `mie.zip` and your games from Files. First real test
+> (iPad Pro M5, iOS 27, LiveContainer, JIT by StikDebug): the menus, the
+> pad and the graphics work, a game loads and starts, then the app closes
+> after about ten seconds: the JIT is the main suspect, a try without
+> StikDebug (`JIT: off` in `odin.log`, slower) should tell. Please report your iPhone model, iOS version, screenshots and
 > `odin.log` (Files → On My iPhone → Odin) on
 > [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56) or in
 > [this repository's issues](https://github.com/Laurent-67370/odin-ios/issues).
@@ -27,9 +32,7 @@ iPhone : des **bêta-testeurs** sont recherchés, l'appel est lancé sur
 [odin.ipa](https://github.com/Laurent-67370/odin-ios/releases/download/odin-ios/odin.ipa)
 (publication [`odin-ios`](https://github.com/Laurent-67370/odin-ios/releases/tag/odin-ios),
 reconstruite à chaque modification). L'`.ipa` n'est pas signé : on l'installe
-soi-même. Le lien fonctionne dès que la première construction est publiée
-(onglet **Releases** du dépôt) ; tant qu'elle ne l'est pas, il mène à une page
-introuvable.
+soi-même.
 
 ## Installer
 
@@ -45,24 +48,39 @@ introuvable.
    **Sur mon iPhone** → **Odin** → `roms/` (avec LiveContainer, dans le dossier
    de LiveContainer). `odin.ini` et `odin.log` sont écrits à côté.
 4. Lancer Odin : la liste des jeux s'affiche, en portrait comme en paysage.
+   Une manette (DualSense, Xbox…) marche comme la manette tactile.
 
 ## Les étapes
 
 | Étape | Contenu | État |
 |---|---|---|
-| 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, dossiers dans Fichiers | **construite**, à essayer par les bêta-testeurs |
-| 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | **construite**, à essayer |
+| 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, dossiers dans Fichiers ; Vulkan par MoltenVK | **marche** (iPad Pro M5, iOS 27) |
+| 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | le jeu démarre puis l'app se ferme (JIT on, iOS 27) : **en cours** |
 | 3 | l'import de jeux depuis l'app (MENU → File → Add games...) | **construit**, à essayer |
 | 4 | « Get homebrew games... » comme sur Android | plus tard |
 
 Sous **iOS 26 et plus récent**, le JIT par débogueur est plus difficile à
-obtenir : les jeux devraient y tourner sans JIT, plus lentement.
+obtenir : la mémoire projetée deux fois pourrait y être refusée, ce qui ferme
+l'app. Les jeux devraient y tourner sans JIT, plus lentement ; le JIT y
+demandera la méthode propre à iOS 26 qu'ont adoptée les émulateurs iOS.
+
+## Historique des essais
+
+| Version | Appareil | Résultat |
+|---|---|---|
+| 0.1.3 – 0.1.5 | iPad Pro M5, iOS 27, LiveContainer | écran noir : SDL ne trouvait pas Vulkan (MoltenVK) ; corrigé en 0.1.6 |
+| 0.1.6 | iPad Pro M5, iOS 27, LiveContainer, StikDebug | menus, manette DualSense, Vulkan, jeu chargé (`Running`, `JIT: on`) ; l'app se ferme une dizaine de secondes plus tard |
 
 ## Bêta-testeurs : ce qui aide
 
 - le modèle de l'iPhone et la version d'iOS ;
 - des captures d'écran ;
-- le fichier `odin.log` (Fichiers → Sur mon iPhone → Odin), après chaque essai.
+- le fichier `odin.log` (Fichiers → Sur mon iPhone → Odin ; avec LiveContainer,
+  dans son dossier), après chaque essai ;
+- si l'app se ferme : le rapport de plantage d'iOS (Réglages → Confidentialité
+  et sécurité → Analyse et améliorations → Données d'analyse, l'entrée la plus
+  récente au nom de l'app ou de LiveContainer) ;
+- si StikDebug a été utilisé ou non.
 
 À envoyer sur [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56)
 ou dans les [issues de ce dépôt](https://github.com/Laurent-67370/odin-ios/issues).
