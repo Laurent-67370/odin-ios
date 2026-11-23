@@ -16,6 +16,8 @@ on:
 
 permissions:
   contents: write
+  # The .ipa of earlier runs, kept as their versions (gh run download)
+  actions: read
 
 # One at a time, whatever the branch: they all publish the same release
 concurrency:
@@ -122,3 +124,34 @@ jobs:
             --title "Odin iOS ${ODIN_IOS_VERSION} (experimental)" \
             --notes "Experimental, unsigned build of Odin for iPhone (arm64, iOS 16.3+), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. Sideload odin.ipa with SideStore or AltStore. In Odin, MENU, File, Add games... picks hikaru.zip, mie.zip and the games from Files and copies them to the app's folder roms/ (they can also be put there by hand: Files app, On My iPhone, Odin; with LiveContainer, inside its folder). MENU, File, Get homebrew games... downloads the free games made for Odin. The games run without JIT, about half as fast; with JIT enabled by StikDebug (on iOS 26 and later with its script universal.js), at full speed. odin.log says JIT: on or JIT: off."
           test "$(gh release view odin-ios --json isDraft --jq .isDraft)" = false
+      # Every version kept too, as its own release ios-<version>: this one,
+      # and those of the earlier runs of main from 0.1.8 on, from their
+      # artifacts (kept 90 days), when they have no release yet
+      - name: Every version (releases ios-0.1.N)
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repo="$GITHUB_REPOSITORY"
+          keep() {
+            tag="ios-$1"
+            if gh release view "$tag" >/dev/null 2>&1; then return 0; fi
+            gh api "repos/$repo/git/refs" -f ref="refs/tags/$tag" -f sha="$2" >/dev/null 2>&1 || true
+            gh release create "$tag" "$3" --verify-tag --prerelease --title "Odin iOS $1 (experimental)" --notes "$4"
+          }
+          keep "$ODIN_IOS_VERSION" "$GITHUB_SHA" odin.ipa \
+            "Odin for iPhone $ODIN_IOS_VERSION (experimental, unsigned), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. The latest build is always in the release odin-ios."
+          base="$(tr -d '[:space:]' < version.txt)"
+          for run in $(gh run list --workflow ios.yml --branch main --status success --limit 100 \
+                       --json databaseId,headSha --jq '.[] | "\(.databaseId):\(.headSha)"'); do
+            id="${run%%:*}"; sha="${run#*:}"
+            [ "$sha" = "$GITHUB_SHA" ] && continue
+            count=$(git rev-list --count "$sha" 2>/dev/null) || continue
+            [ "$count" -ge 8 ] || continue
+            if gh release view "ios-$base.$count" >/dev/null 2>&1; then continue; fi
+            rm -rf earlier
+            gh run download "$id" -n odin-ios -D earlier >/dev/null 2>&1 || continue
+            [ -f earlier/odin.ipa ] || continue
+            keep "$base.$count" "$sha" earlier/odin.ipa \
+              "Earlier build of Odin for iPhone (experimental, unsigned), odin-ios ${sha::7}, run $id. The latest build is always in the release odin-ios."
+          done
