@@ -50,6 +50,8 @@ soi-même.
    chacun s'il est prêt. On peut aussi les déposer soi-même : **Fichiers** →
    **Sur mon iPhone** → **Odin** → `roms/` (avec LiveContainer, dans le dossier
    de LiveContainer). `odin.ini` et `odin.log` sont écrits à côté.
+   Les jeux maison d'Odin (gratuits) : **MENU → File → Get homebrew games...**
+   les télécharge depuis GitHub ; il leur faut aussi `hikaru.zip`.
 4. Lancer Odin : la liste des jeux s'affiche, en portrait comme en paysage.
    Une manette (DualSense, Xbox…) marche comme la manette tactile.
 
@@ -60,7 +62,7 @@ soi-même.
 | 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, manette Bluetooth, dossiers dans Fichiers ; Vulkan par MoltenVK | **marche** (iPad Pro M5, iOS 27) |
 | 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | **sans JIT : marche** (Star Wars Racer, ~60 images/s sur iPad Pro M5) ; avec le JIT sous iOS 26+ : 0.1.8 à essayer |
 | 3 | l'import de jeux depuis l'app (MENU → File → Add games...) | **construit**, à essayer |
-| 4 | « Get homebrew games... » comme sur Android | plus tard |
+| 4 | « Get homebrew games... » comme sur Android : la liste des jeux maison, chacun nouveau ou installé, téléchargé et ajouté | **construit**, à essayer |
 
 Sous **iOS 26 et plus récent**, la mémoire qu'une app se donne ne s'exécute
 plus, même avec le débogueur : Odin la demande à StikDebug (`brk #0xf00d`,
