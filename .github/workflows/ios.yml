@@ -17,9 +17,10 @@ on:
 permissions:
   contents: write
 
+# One at a time, whatever the branch: they all publish the same release
 concurrency:
-  group: odin-ios-${{ github.ref }}
-  cancel-in-progress: true
+  group: odin-ios
+  cancel-in-progress: false
 
 jobs:
   ipa:
@@ -102,11 +103,22 @@ jobs:
           path: |
             odin.ipa
             build.log
+      # Published from main alone: a branch's .ipa is in its artifact
       - name: Published (release "odin-ios")
+        if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
+        # Every release of the tag odin-ios deleted, drafts too (one left a
+        # draft: the link to odin.ipa then fails), the tag put on this commit
+        # first, the release checked published
         run: |
-          gh release delete odin-ios --yes --cleanup-tag || true
-          gh release create odin-ios odin.ipa --target "$GITHUB_SHA" --prerelease \
+          repo="$GITHUB_REPOSITORY"
+          for id in $(gh api "repos/$repo/releases" --paginate --jq '.[] | select(.tag_name == "odin-ios") | .id'); do
+            gh api -X DELETE "repos/$repo/releases/$id"
+          done
+          gh api -X DELETE "repos/$repo/git/refs/tags/odin-ios" || true
+          gh api "repos/$repo/git/refs" -f ref=refs/tags/odin-ios -f sha="$GITHUB_SHA" >/dev/null
+          gh release create odin-ios odin.ipa --verify-tag --prerelease \
             --title "Odin iOS ${ODIN_IOS_VERSION} (experimental)" \
             --notes "Experimental, unsigned build of Odin for iPhone (arm64, iOS 16.3+), from Odin ${ODIN_COMMIT::7}, odin-android ${ODIN_ANDROID_SHA} and odin-ios ${GITHUB_SHA::7}. Sideload odin.ipa with SideStore or AltStore. In Odin, MENU, File, Add games... picks hikaru.zip, mie.zip and the games from Files and copies them to the app's folder roms/ (they can also be put there by hand: Files app, On My iPhone, Odin; with LiveContainer, inside its folder). The games run without JIT, about half as fast; with JIT enabled by StikDebug (on iOS 26 and later with its script universal.js), at full speed. odin.log says JIT: on or JIT: off."
+          test "$(gh release view odin-ios --json isDraft --jq .isDraft)" = false
