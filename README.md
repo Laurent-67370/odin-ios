@@ -9,8 +9,10 @@ iOS 27, LiveContainer, JIT par StikDebug) : l'app s'ouvre, Vulkan tourne sur
 le GPU M5, les menus, la liste des jeux et une manette DualSense marchent, un
 jeu (Star Wars Racer Arcade) se charge et démarre ; **puis l'app se ferme**
 au bout d'une dizaine de secondes, sans erreur dans `odin.log`. Piste
-principale : le JIT, qu'iOS 26 et plus récent n'accorde plus de la même façon ;
-un essai sans StikDebug (JIT off, plus lent) doit le confirmer. D'autres
+principale : le JIT, qu'iOS 26 et plus récent n'accorde plus de la même façon.
+La version suivante demande sa mémoire de code à StikDebug, comme les
+émulateurs iOS : sous iOS 26 et plus récent, choisir le script
+**`universal.js`** dans StikDebug. D'autres
 **bêta-testeurs** sont les bienvenus :
 [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56).
 
@@ -21,8 +23,10 @@ un essai sans StikDebug (JIT off, plus lent) doit le confirmer. D'autres
 > games... to pick `hikaru.zip`, `mie.zip` and your games from Files. First real test
 > (iPad Pro M5, iOS 27, LiveContainer, JIT by StikDebug): the menus, the
 > pad and the graphics work, a game loads and starts, then the app closes
-> after about ten seconds: the JIT is the main suspect, a try without
-> StikDebug (`JIT: off` in `odin.log`, slower) should tell. Please report your iPhone model, iOS version, screenshots and
+> after about ten seconds: the JIT is the main suspect, the next build asks
+> StikDebug for its code memory, as iOS emulators do: on iOS 26 and later,
+> pick the **`universal.js`** script in StikDebug. Without StikDebug the games
+> run slower (`JIT: off` in `odin.log`). Please report your iPhone model, iOS version, screenshots and
 > `odin.log` (Files → On My iPhone → Odin) on
 > [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56) or in
 > [this repository's issues](https://github.com/Laurent-67370/odin-ios/issues).
@@ -59,10 +63,12 @@ soi-même.
 | 3 | l'import de jeux depuis l'app (MENU → File → Add games...) | **construit**, à essayer |
 | 4 | « Get homebrew games... » comme sur Android | plus tard |
 
-Sous **iOS 26 et plus récent**, le JIT par débogueur est plus difficile à
-obtenir : la mémoire projetée deux fois pourrait y être refusée, ce qui ferme
-l'app. Les jeux devraient y tourner sans JIT, plus lentement ; le JIT y
-demandera la méthode propre à iOS 26 qu'ont adoptée les émulateurs iOS.
+Sous **iOS 26 et plus récent**, la mémoire qu'une app se donne ne s'exécute
+plus, même avec le débogueur : Odin la demande à StikDebug (`brk #0xf00d`,
+protocole de StikJIT), qui la prépare avec son script **`universal.js`** ;
+Odin y écrit par une seconde projection. `odin.log` dit d'où vient sa mémoire
+(`JIT: … KB of code memory from the debugger` ou `mapped twice by the app`).
+Sans StikDebug, les jeux tournent sans JIT, plus lentement.
 
 ## Historique des essais
 
