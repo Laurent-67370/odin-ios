@@ -60,7 +60,23 @@ chacune apporte : [Les versions](#les-versions).
 4. Lancer Odin : la liste des jeux s'affiche, en portrait comme en paysage.
    Une manette (DualSense, Xbox…) marche comme la manette tactile.
 
-## Les étapes
+## Par rapport à la version Android
+
+Les **fonctions** sont les mêmes que dans [odin-android](https://github.com/Laurent-67370/odin-android) :
+les deux partagent le même patch d'Odin. iOS est **moins essayé**, et son JIT
+n'en est pas au même point.
+
+| | Android | iOS |
+|---|---|---|
+| Menus pour le téléphone, portrait et paysage | oui, essayé | oui, essayé (iPad) |
+| Manette tactile ; manette Bluetooth | oui, essayé | oui ; DualSense essayée |
+| Liste des jeux, rubrique HOMEBREW | oui, essayé | oui, essayé (iPad) |
+| MENU → File → **Add games...** (import, vérification « ready to play ») | oui, essayé | oui (sélecteur de Fichiers/iCloud), **pas encore essayé** |
+| MENU → File → **Get homebrew games...** (nouveau, installé, mise à jour) | oui, essayé ; cases à cocher | oui ; un bouton par jeu ou « tous les nouveaux et mis à jour », **pas encore essayé** |
+| Les jeux | à pleine vitesse (JIT toujours actif) | **sans JIT** : marchent, environ deux fois moins vite (fluide sur iPad Pro M5) |
+| JIT | toujours actif | par StikDebug ; sous iOS 26+, script `universal.js` : **pas encore essayé** |
+| Installation | APK signé | `.ipa` non signé, sideload (SideStore, AltStore, LiveContainer) |
+
 
 | Étape | Contenu | État |
 |---|---|---|
