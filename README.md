@@ -5,16 +5,13 @@ Hikaru et Gaelco (ATV Track, Smashing Drive, Gaelco 3D, Rolling Extreme) de
 Réda Chérif-Touil (GPL 3), tirée du portage
 Android [odin-android](https://github.com/Laurent-67370/odin-android).
 
-**État : expérimental, mais les jeux tournent.** Sur un iPad Pro M5 sous
-iOS 27 (LiveContainer), **sans JIT**, un bêta-testeur a joué une course
-complète de Star Wars Racer Arcade, fluide à l'œil, environ 60 images par
-seconde, à la manette DualSense : Vulkan sur le GPU M5, les menus, la liste des
-jeux, tout marche. **Avec le JIT** (StikDebug), la version 0.1.6 se fermait
-quelques secondes après le début du jeu : sous iOS 26 et plus récent, la
-mémoire qu'une app se donne ne peut pas exécuter de code. La version 0.1.8 la
-demande à StikDebug (script **`universal.js`**), comme les émulateurs iOS : à
-essayer. Sans JIT, un appareil moins puissant qu'un M5 risque d'être trop lent.
-D'autres **bêta-testeurs** sont les bienvenus, surtout avec un iPhone :
+**État : expérimental, mais les jeux tournent, avec ou sans JIT.** Sur un
+iPad Pro M5 sous iOS 27 (LiveContainer), un bêta-testeur a joué Star Wars
+Racer Arcade à 60 images/s **sans JIT**, même en résolution et filtrage
+anisotrope maximaux ; **avec le JIT** (StikDebug, script **`universal.js`**,
+version 0.1.16), « tout fonctionne parfaitement ». Les jeux maison téléchargés
+depuis l'app (« Get homebrew games... ») tournent aussi. D'autres
+**bêta-testeurs** sont les bienvenus, surtout avec un iPhone :
 [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56).
 
 > **In English, for beta testers:** an experimental, unsigned iPhone build of
@@ -22,11 +19,10 @@ D'autres **bêta-testeurs** sont les bienvenus, surtout avec un iPhone :
 > [odin.ipa](https://github.com/Laurent-67370/odin-ios/releases/download/odin-ios/odin.ipa),
 > sideload it with SideStore or AltStore, then in Odin use MENU → File → Add
 > games... to pick `hikaru.zip`, `mie.zip` and your games from Files. On an iPad Pro M5
-> (iOS 27, LiveContainer), **without JIT**, a full race of Star Wars Racer
-> Arcade ran smoothly, about 60 fps, with a DualSense. With JIT, build 0.1.6
-> closed a few seconds into the game; 0.1.8 asks StikDebug for its JIT memory
-> the iOS 26 way: pick the **`universal.js`** script in StikDebug (to be
-> tried). `odin.log` says `JIT: on` or `JIT: off`. Please report your iPhone model, iOS version, screenshots and
+> (iOS 27, LiveContainer), games run at 60 fps without JIT, and with JIT
+> (StikDebug with its **`universal.js`** script, build 0.1.16 and later);
+> homebrew games downloaded in the app run too. `odin.log` says `JIT: on`
+> or `JIT: off`. Please report your iPhone model, iOS version, screenshots and
 > `odin.log` (Files → On My iPhone → Odin) on
 > [Tovarichtch/Odin#56](https://github.com/Tovarichtch/Odin/issues/56) or in
 > [this repository's issues](https://github.com/Laurent-67370/odin-ios/issues).
@@ -64,7 +60,7 @@ chacune apporte : [Les versions](#les-versions).
 ## Par rapport à la version Android
 
 Les **fonctions** sont les mêmes que dans [odin-android](https://github.com/Laurent-67370/odin-android) :
-les deux partagent le même patch d'Odin. iOS est **moins essayé**, et son JIT
+les deux partagent le même patch d'Odin. iOS est **un peu moins essayé** : l'import par « Add games... » n'a pas encore été essayé sur un appareil, et son JIT
 n'en est pas au même point.
 
 | | Android | iOS |
@@ -73,25 +69,25 @@ n'en est pas au même point.
 | Manette tactile ; manette Bluetooth | oui, essayé | oui ; DualSense essayée |
 | Liste des jeux, rubrique HOMEBREW | oui, essayé | oui, essayé (iPad) |
 | MENU → File → **Add games...** (import, vérification « ready to play ») | oui, essayé | oui (sélecteur de Fichiers/iCloud), **pas encore essayé** |
-| MENU → File → **Get homebrew games...** (nouveau, installé, mise à jour) | oui, essayé ; cases à cocher | oui ; un bouton par jeu ou « tous les nouveaux et mis à jour », **pas encore essayé** |
-| Les jeux | à pleine vitesse (JIT toujours actif) | **sans JIT** : marchent, environ deux fois moins vite (fluide sur iPad Pro M5) |
-| JIT | toujours actif | par StikDebug ; sous iOS 26+, script `universal.js` : **pas encore réussi** (iPad Pro M5, iOS 27 : l'app se fermait ; depuis la 0.1.16, sans réponse de StikDebug, Odin tourne sans JIT au lieu de se fermer) |
+| MENU → File → **Get homebrew games...** (nouveau, installé, mise à jour) | oui, essayé ; cases à cocher | oui ; un bouton par jeu ou « tous les nouveaux et mis à jour » ; **essayé** (iPad, deux jeux maison) |
+| Les jeux | à pleine vitesse (JIT toujours actif) | à pleine vitesse avec le JIT ; sans JIT, environ deux fois moins vite (déjà fluide sur iPad Pro M5) |
+| JIT | toujours actif | par StikDebug ; sous iOS 26+, avec son script `universal.js` : **marche** (iPad Pro M5, iOS 27, 0.1.16) ; sans réponse de StikDebug, Odin tourne sans JIT au lieu de se fermer |
 | Installation | APK signé | `.ipa` non signé, sideload (SideStore, AltStore, LiveContainer) |
 
 
 | Étape | Contenu | État |
 |---|---|---|
 | 1 | l'app s'ouvre : menus, liste des jeux, manette tactile, manette Bluetooth, dossiers dans Fichiers ; Vulkan par MoltenVK | **marche** (iPad Pro M5, iOS 27) |
-| 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | **sans JIT : marche** (Star Wars Racer, ~60 images/s sur iPad Pro M5) ; avec le JIT sous iOS 26+ : 0.1.8 à essayer |
+| 2 | les jeux : sans JIT, les instructions décodées (plus lent) ; avec le JIT (Odin recompile le SH-4 et l'ARM7 en ARM64) activé par un débogueur (**StikDebug**), la mémoire du code projetée deux fois, comme dans les émulateurs iOS ; `odin.log` dit `JIT: on` ou `JIT: off` | **marche, avec et sans JIT** (iPad Pro M5, iOS 27) |
 | 3 | l'import de jeux depuis l'app (MENU → File → Add games...) | **construit**, à essayer |
-| 4 | « Get homebrew games... » comme sur Android : la liste des jeux maison, chacun nouveau, installé ou avec une mise à jour, téléchargé et ajouté | **construit**, à essayer |
+| 4 | « Get homebrew games... » comme sur Android : la liste des jeux maison, chacun nouveau, installé ou avec une mise à jour, téléchargé et ajouté | **marche** (iPad, deux jeux maison) |
 
 Sous **iOS 26 et plus récent**, la mémoire qu'une app se donne ne s'exécute
 plus, même avec le débogueur : Odin la demande à StikDebug (`brk #0xf00d`,
 protocole de StikJIT), qui la prépare avec son script **`universal.js`** ;
 Odin y écrit par une seconde projection. `odin.log` dit d'où vient sa mémoire
 (`JIT: … KB of code memory from the debugger` ou `mapped twice by the app`).
-Sans StikDebug, les jeux tournent sans JIT, plus lentement.
+Sans StikDebug, les jeux tournent sans JIT, plus lentement. Essayé et confirmé sur iPad Pro M5 sous iOS 27 (0.1.16).
 
 ## Les versions
 
@@ -117,7 +113,7 @@ l'app et les numéros qui manquent. Odin affiche le numéro dans MENU → About
 | 0.1.13 | les publications rangées dans l'ordre des versions, la dernière (`odin-ios`) en tête | rien de neuf dans l'app | [0.1.13](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.013) |
 | 0.1.14 | les tags sur trois chiffres (`ios-0.1.008`) : GitHub range les publications par tag, en texte | rien de neuf dans l'app | [0.1.14](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.014) |
 | 0.1.15 | « Get homebrew games... » signale les **mises à jour** des jeux maison, comme sur Android (le CRC de leur première EPROM) ; « All the new and updated » | à essayer | [0.1.15](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.015) |
-| 0.1.16 | sous iOS 26+, si StikDebug ne donne pas la mémoire du JIT, Odin tourne **sans JIT au lieu de se fermer** ; `odin.log` dit ce que StikDebug a répondu | à essayer | [0.1.16](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.016) |
+| 0.1.16 | sous iOS 26+, si StikDebug ne donne pas la mémoire du JIT, Odin tourne **sans JIT au lieu de se fermer** ; `odin.log` dit ce que StikDebug a répondu | **JIT : marche** (iPad Pro M5, iOS 27, `universal.js`) ; jeux maison téléchargés : marchent | [0.1.16](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.016) |
 | 0.1.17 | **Odin à jour** (`571e6f2`) : les jeux Gaelco 3D (Football Power, Radikal Bikers, Speed Up, Surf Planet) et Rolling Extreme ; son processeur C82 n'est recompilé que sur PC, il est interprété sur iPhone | à essayer | [0.1.17](https://github.com/Laurent-67370/odin-ios/releases/tag/ios-0.1.017) |
 
 Les notes de chaque publication reprennent le titre de sa modification.
@@ -131,6 +127,7 @@ Les notes de chaque publication reprennent le titre de sa modification.
 | 0.1.6 | iPad Pro M5, iOS 27, LiveContainer, sans JIT | **une course complète de Star Wars Racer Arcade**, fluide à l'œil (~60 images/s), manette DualSense ; le jeu se ferme proprement |
 | 0.1.8 | — | le JIT d'iOS 26 par StikDebug (`universal.js`) : à essayer |
 | 0.1.12 | iPad Pro M5, iOS 27, LiveContainer, StikDebug | JIT on, mais `odin.log` montre que StikDebug n'a pas fourni la mémoire (« mapped twice by the app ») : l'app se ferme ; sans JIT, 60 images/s en résolution maximale et filtrage anisotrope maximal |
+| 0.1.16 | iPad Pro M5, iOS 27, LiveContainer, StikDebug avec `universal.js` | **le JIT marche** : « tout fonctionne parfaitement » ; deux jeux maison téléchargés par « Get homebrew games... » marchent aussi |
 
 ## Bêta-testeurs : ce qui aide
 
