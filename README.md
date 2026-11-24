@@ -135,6 +135,7 @@ Les notes de chaque publication reprennent le titre de sa modification.
 | 0.1.8 | — | le JIT d'iOS 26 par StikDebug (`universal.js`) : à essayer |
 | 0.1.12 | iPad Pro M5, iOS 27, LiveContainer, StikDebug | JIT on, mais `odin.log` montre que StikDebug n'a pas fourni la mémoire (« mapped twice by the app ») : l'app se ferme ; sans JIT, 60 images/s en résolution maximale et filtrage anisotrope maximal |
 | 0.1.16 | iPad Pro M5, iOS 27, LiveContainer, StikDebug avec `universal.js` | « tout fonctionne parfaitement » ; deux jeux maison téléchargés par « Get homebrew games... » marchent aussi ; ATV Track marche ; mais `odin.log` montre que la mémoire donnée par StikDebug était refusée : **les jeux tournaient sans JIT** (corrigé en 0.1.18) |
+| 0.1.18 | iPad Pro M5, iOS 27, LiveContainer | les groupes Gaelco 3D et Gaelco C82 dans la liste ; **Radikal Bikers à 60 images/s** (ses processeurs n'ont pas de JIT) ; le JIT accepté (SH-4 : jeux SEGA Hikaru, ATV Track) reste à essayer avec StikDebug |
 
 ## Bêta-testeurs : ce qui aide
 
